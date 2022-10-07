@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load cart %}
+
+{% load custom_filter %}
+
+<!-- Body -->
+
+<div class="container">
+    <div class="border rounded mb-4">
+        <p class="badge badge-primary border rounded" style="width: 69rem; font-weight: normal; height: 4rem; font-size: 2rem;">Cancel Order</p>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Sno.</th>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Date</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% csrf_token %}
+                {% for order in orders %}
+                <tr id="{{order.id}}">
+                    <td><input type="checkbox" name="order_id[]" value="{{order.id}}" id="delete_order"></td>
+                    <td> {{forloop.counter}} </td>
+                    <td><img style="height: 80px;" class="square" src="{{order.product.image.url}}" alt=""></td>
+                    <td>{{order.product.name}}</td>
+                    <td>{{order.date}}</td>
+                    <td>{{order.price|currency}}</td>
+                    <td>{{order.quantity}}</td>
+                    <td>{{order.quantity|multiply:order.price|currency}}</td>
+                    {% if order.status %}
+                    <td><small class="badge badge-success">Completed</small></td>
+                    {% else %}
+                    <td><small class="badge badge-warning">Pending</small></td>
+                    {% endif %}
+                </tr>
+                {% endfor %} 
+            </tbody>
+        </table>
+        <div>
+            <button type="submit" id="delete_btn" class="btn btn-dark border mt-5 mb-5 border-dark rounded col-lg-3 float-right">Delete</button>
+        </div>
+            
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+
+<script>
+    $(document).ready(function(){
+        $('#delete_btn').click(function(){
+            if(confirm("Are u sure u want to delete the items?")){
+                var id = [];
+                var csrf=$('input[name=csrfmiddlewaretoken').val();
+                $(':checkbox:checked').each(function(i){
+                    id[i]=$(this).val()
+                })
+                if(id.length===0){
+                    alert("Please select items to delete")
+                }else{
+                    console.log(id)
+                    $.ajax({
+                        url:'',
+                        method: "POST",
+                        data: {
+                            id,
+                            csrfmiddlewaretoken:csrf
+                        },
+                        success:function(response){
+                            for(var i=0; i < id.length; i++){
+                                $('tr#'+id[i]+'').css('background-color', '#ccc');
+                                $('tr#'+id[i]+'').fadeOut('slow');
+                            }
+                        }
+                    })
+                }
+
+            }
+        })
+    })
+</script>
+{% endblock %}
+
+
+

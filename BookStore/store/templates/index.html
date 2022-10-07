@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %}
+
+{% load cart %}
+
+{% load custom_filter %}
+
+<!-- Body -->
+<div class="container-fluid mt-4">
+   <div class="row">
+
+
+    <!-- filter -->
+    <div class="col-lg-3 mx-auto" >
+      <div class="list-group" style="width: 18rem;" >
+        <a href="/" class="list-group-item list-group-item-action list-group-item-success font-weight-bold py-4">All Products</a>
+        {% for category in categories %}
+        <a href="/?category={{category.id}}" class="list-group-item list-group-item-action list-group-item-warning font-weight-bold py-3">{{ category.name }}</a>
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <!-- all products -->
+     <div id="products" class="col-lg-9 mx-auto">
+      <div class="row mx-auto">
+        {% for product in products %}
+        <div class="card mx-auto mb-5 " id="{{product.id}}" style="width: 21rem;">
+          <img class="card-img-top" src="{{ product.image.url }}" alt="Card image cap">
+          <div class="card-body">
+            <p class="card-title"><b>{{ product.name }}</b></p>
+            <p class="card-title font-italic">{{ product.description }}</p>
+            <hr>
+            <hr>
+            <p class="card-text"><b>{{ product.price|currency }}</b></p>
+            <!-- {{product | is_in_cart:request.session.cart }} -->
+            
+          </div>
+
+          <div class="card-footer p-0 no-gutters">
+
+            {% if product|is_in_cart:request.session.cart %}
+
+            <div class="row no-gutters"> 
+              <form action="/#{{product.id}}" class="col-2" method="POST">
+                {% csrf_token %}
+                <input type="text" hidden name="product" value="{{ product.id }}">
+                <input type="text" hidden name="remove" value="True">
+                <input type="submit" value=" - " class="btn btn-block btn-warning">
+              </form>
+
+              <div class="text-center col">{{product|cart_quantity:request.session.cart}} in cart</div>
+
+              <form action="/#{{product.id}}" class="col-2" method="POST">
+                {% csrf_token %}
+                <input type="text" class="text-monospace" hidden name="product" value="{{ product.id }}">
+                <input type="submit" value=" + " class="btn btn-block btn-warning">
+              </form>
+            </div>
+
+            {% else %}
+            <form action="/#{{product.id}}" method="POST" class="btn-block">
+              {% csrf_token %}
+              <input type="text" hidden name="product" value="{{ product.id }}">
+              <input type="submit" class="float-right btn btn-success form-control " value="Add to cart">
+            </form>
+            {% endif %}
+  
+           
+          </div>
+          
+        </div>
+      {% endfor %}
+      </div>
+     </div>
+   </div>
+</div>
+
+
+ 
+  <!-- Copyright -->
+  <div class="text-center text-white p-3" style="background-color: rgb(0, 0, 0);">
+    © 2022 Copyright:
+    <a class="text-white" href="http://127.0.0.1:8000">GeekStop.com</a>
+  </div>
+  <!-- Copyright -->
+</footer>
+{% endblock %}
+
+
+
